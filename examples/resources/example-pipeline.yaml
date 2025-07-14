@@ -10,9 +10,13 @@ resources:
       name: DevOps/CentralPipeline
       ref: main
 
+
+
 stages:
 
 - stage: PROD 
+  variable:
+  - group: prod
   jobs: 
   - deployment: Deploy
     environment: PROD
