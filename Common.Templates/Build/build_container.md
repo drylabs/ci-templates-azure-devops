@@ -25,14 +25,14 @@ repositories:
 variables:
 
 trigger: 
-      branches:
-        include: 
-        - main
-        - develop
-        - QA
-        exclude:
-        - hotfix/*
-        - features/*
+  branches:
+    include: 
+    - main
+    - develop
+    - QA
+    exclude:
+    - hotfix/*
+    - features/*
 
 parameters:
   - name: artifacts
@@ -49,26 +49,26 @@ pool:
 
 
 stages:
-  - stage: Build
-    variables:
-      buildPlatform: 'Any CPU'
-      buildConfiguration: 'Release'
-      
-    jobs:
+- stage: Build
+  variables:
+    buildPlatform: 'Any CPU'
+    buildConfiguration: 'Release'
+    
+  jobs:
 
-    - job: Build
-      steps: 
+  - job: Build
+    steps: 
 
-      - task: AzureKeyVault@2
-        inputs:
-          azureSubscription: ""
-          KeyVaultName: ""
-          SecretsFilter: "*"
-          RunAsPreJob: true
-   
-      - template: Common.Templates/Build/build_container.yaml@ci-templates
-        parameters:
-          containerRegistryName: "cr-myacr-eastus"
-          containerRepository: "container/app/v1"
+    - task: AzureKeyVault@2
+      inputs:
+        azureSubscription: ""
+        KeyVaultName: ""
+        SecretsFilter: "*"
+        RunAsPreJob: true
   
+    - template: Common.Templates/Build/build_container.yaml@ci-templates
+      parameters:
+        containerRegistryName: "cr-myacr-eastus"
+        containerRepository: "container/app/v1"
+
 ```
