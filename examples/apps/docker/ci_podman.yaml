@@ -80,6 +80,9 @@ stages:
               branch_name=$(echo "$(Build.SourceBranch)" | sed 's/refs\/heads\///' | sed 's/\//-/g')
               echo "##vso[task.setvariable variable=short_hash;]$short_hash"
               echo "##vso[task.setvariable variable=branch_name;]$branch_name"
+              echo "##vso[task.setvariable variable=imageRepository;]$(CONTAINER_REGISTRY)/$(IMAGE_NAME)"
+              echo "##vso[task.setvariable variable=imageTagShort;]$short_hash"
+              echo "##vso[task.setvariable variable=imageTagBranch;]$branch_name-latest"
               echo "Commit Hash: $short_hash"
               echo "Branch: $branch_name"
             displayName: 'Set Build Variables'
@@ -87,15 +90,15 @@ stages:
           - script: |
               sudo podman build \
                 -f Dockerfile \
-                -t $(CONTAINER_REGISTRY)/$(IMAGE_NAME):$(short_hash) \
-                -t $(CONTAINER_REGISTRY)/$(IMAGE_NAME):$(branch_name)-latest \
+                -t $(imageRepository):$(imageTagShort) \
+                -t $(imageRepository):$(imageTagBranch) \
                 $(buildContext)
             displayName: "Build image with Podman"
 
           - script: |
               sudo podman login $(CONTAINER_REGISTRY) --username $(CONTAINER_REGISTRY_USER) --password $(CONTAINER_REGISTRY_PASSWORD)
-              sudo podman push $(CONTAINER_REGISTRY)/$(IMAGE_NAME):$(short_hash)
-              sudo podman push $(CONTAINER_REGISTRY)/$(IMAGE_NAME):$(branch_name)-latest
+              sudo podman push $(imageRepository):$(imageTagShort)
+              sudo podman push $(imageRepository):$(imageTagBranch)
             env:
               CONTAINER_REGISTRY_PASSWORD: $(CONTAINER_REGISTRY_PASSWORD)
             displayName: "Push image to registry"
@@ -104,7 +107,7 @@ stages:
               echo "✅ Image successfully built and pushed!"
               echo "📦 Repository: $(imageRepository)"
               echo "🏷️  Tags:"
-              echo "   - $(short_hash)"
-              echo "   - $(branch_name)-latest"
+              echo "   - $(imageTagShort)"
+              echo "   - $(imageTagBranch)"
               echo "🔗 Registry: $(CONTAINER_REGISTRY)"
             displayName: 'Build Summary'
